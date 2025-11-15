@@ -4,80 +4,37 @@ const yahooFinance = new YahooFinance();
 
 class yahoo {
 
-    async  fetchFundamentals(symbol){
-        if (!symbol) {
-            throw new Error("Parâmetro 'symbol' é obrigatório");
-        }
+    async fetchFundamentals(symbol) {
         const result = await yahooFinance.quoteSummary(symbol, {
-            modules: [
-                "defaultKeyStatistics",
-                "financialData",
-                "summaryDetail",
-                //"earnings"
-            ]
+            modules: ["defaultKeyStatistics", "summaryDetail", "price"]
         });
 
         const stats = result.defaultKeyStatistics ?? {};
-        const fin = result.financialData ?? {};
         const summary = result.summaryDetail ?? {};
-        //const earnings = result.earnings ?? {};
+        const priceData = result.price ?? {};
 
-        // SEGUNDA CHAMADA → earnings (LPA real)
-        let earningsData = {};
-        try {
-            earningsData = await yahooFinance.earnings(symbol);
-        } catch (e) {
-            earningsData = {};
-        }
 
-        const epsFromEarnings =
-            earningsData?.financialsChart?.yearly?.[0]?.earnings ?? null;
+        const pl =
+            summary?.trailingPE ??
+            stats?.trailingPE ??
+            null;
 
-        // ------------------------------
-        // CALCULAR LPA MANUALMENTE
-        // ------------------------------
+        const price =
+            result.price?.regularMarketPrice ??
+            result.price?.postMarketPrice ??
+            result.price?.preMarketPrice ??
+            result.price?.currentPrice ??
+            null;
 
-        const lucroLiquido =
-            fin.netIncomeToCommon ??
-            (fin.revenue && fin.profitMargins
-                ? fin.revenue * fin.profitMargins
-                : null);
+        const lpaCalculado = (pl && price) ? (price / pl) : null;
 
-        const numeroAcoes = stats.sharesOutstanding ?? null;
-
-        const lpaCalculado =
-            lucroLiquido && numeroAcoes
-                ? lucroLiquido / numeroAcoes
-                : null;
-
-        // ------------------------------
-        // RETORNO FINAL
-        // ------------------------------
         return {
-            pl:
-                summary?.trailingPE ??
-                summary?.forwardPE ??
-                summary?.peRatio ??
-                stats?.trailingPE ??
-                stats?.forwardPE ??
-                null,
-
+            pl,
+            lpa: lpaCalculado,
             pvp: stats?.priceToBook ?? null,
-
-            lpa:
-                stats?.epsTrailingTwelveMonths ??
-                stats?.epsForward ??
-                fin?.earningsPerShare ??
-                epsFromEarnings ??
-                lpaCalculado ??      // <—— AGORA TEMOS LPA PARA A B3
-                null,
-
             vpa: stats?.bookValue ?? null,
-
-            dividendYield:
-                summary?.dividendYield ??
-                fin?.dividendYield ??
-                null
+            dividendYield: summary?.dividendYield ?? null,
+            price
         };
     }
 }
