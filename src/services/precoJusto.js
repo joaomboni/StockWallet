@@ -42,7 +42,7 @@ class precoJusto extends yahoo{
         { 
             $set: { 
                 symbol,
-                precoJusto,
+                precoJusto: pj,
                 updatedAt: new Date(),
                 fundamentos: fundamentals
             }
@@ -50,7 +50,7 @@ class precoJusto extends yahoo{
         { upsert: true }  // cria se não existir
     );
 
-    return { precoJusto, fundamentals };
+    return { precoJusto: pj, fundamentos: fundamentals };
   }
 }
 
