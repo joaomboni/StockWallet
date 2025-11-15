@@ -58,6 +58,27 @@ class precoJusto extends yahoo{
 
     return { precoJusto: pj, fundamentos: fundamentals };
   }
+    // -----------------------------------------
+    // MÉTODO PARA EXCLUIR REGISTRO POR SYMBOL
+    // -----------------------------------------
+    async deleteBySymbol(symbol){
+        if (!symbol) {
+            throw new Error("É necessário informar um symbol para deletar.");
+        }
+
+        const database = db.getDatabase();
+        const collection = database.collection("precos");
+
+        const result = await collection.deleteOne({ symbol });
+
+        if (result.deletedCount === 0) {
+            throw new Error(`Nenhum registro encontrado com o symbol: ${symbol}`);
+        }
+
+        return { message: `Registro com symbol ${symbol} deletado com sucesso.` };
+    }
+
+
 }
 
 module.exports = precoJusto;
