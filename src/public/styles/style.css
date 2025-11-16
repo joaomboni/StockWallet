@@ -1,0 +1,130 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    color: #333;
+}
+
+/* ------------------------- HEADER ----------------------------- */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: #fff;
+}
+
+.logo h1 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: bold;
+    color: #1a8f5a;
+}
+
+.logo h1 span {
+    color: #0f527d;
+}
+
+.logo p {
+    margin: 0;
+    margin-top: -6px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #3ca17f;
+}
+
+.search-box {
+    display: flex;
+}
+
+.search-box input {
+    width: 260px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-box button {
+    padding: 10px 20px;
+    background: #68b04d;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+}
+
+/* ------------------------- MENU ----------------------------- */
+
+nav {
+    background: #e8efe8;
+    padding: 12px 40px;
+    display: flex;
+    gap: 20px;
+    border-top: 3px solid #52a450;
+}
+
+nav a, .dropbtn {
+    text-decoration: none;
+    padding: 10px 14px;
+    color: #2b6c2b;
+    font-weight: bold;
+}
+
+nav a.active {
+    background: #52a450;
+    color: white;
+    border-radius: 4px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* ------------------------- INTRO ----------------------------- */
+
+.intro {
+    margin: 40px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.intro img {
+    width: 340px;
+    border-radius: 6px;
+}
+
+/* ------------------------- FEATURES ----------------------------- */
+
+.features {
+    background: #f6fdf6;
+    padding: 40px;
+}
+
+.features h2 {
+    color: #2d8b2d;
+}
+
+.features ul {
+    list-style: none;
+    padding: 0;
+}
+
+.features li {
+    padding: 8px 0;
+    font-size: 16px;
+}

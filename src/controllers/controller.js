@@ -4,12 +4,8 @@ const PrecoJusto = require("../services/precoJusto");
 
 // Note: Express handlers receive (req, res)
 const helloWorld = async (req, res) => {
-  res.send('Hello World!');
+  res.render('home');
 };
-
-const home = async (req, res) => {
-    res.render("./views/home");
-}
 
 const consultaYahoo = async (req, res) => {
   try {
