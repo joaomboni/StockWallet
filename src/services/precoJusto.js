@@ -38,10 +38,10 @@ class precoJusto extends yahoo{
     const collection = database.collection("precos");
 
     // --------- LIMITE DE DOCUMENTOS ACEITO -------
-      const total = await collection.countDocuments({});
-      if (total => 5){
-          throw new Error("Limite máximo de 5 registros atingido.");
-      }
+    //   const total = await collection.countDocuments({});
+    //   if (total => 5){
+    //       throw new Error("Limite máximo de 5 registros atingido.");
+    //   }
 
     await collection.updateOne(
         { symbol },   // filtro: procurar pelo símbolo(ticker)

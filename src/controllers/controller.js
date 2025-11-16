@@ -9,7 +9,7 @@ const helloWorld = async (req, res) => {
 
 const consultaYahoo = async (req, res) => {
   try {
-    const { symbol } = req.query;
+    const { symbol } = req.body;
     const yh = new yahoo();
     const result = await yh.fetchFundamentals(symbol);
     res.status(200).json({ symbol, ...result });
@@ -21,7 +21,7 @@ const consultaYahoo = async (req, res) => {
 
 const precoJusto = async (req, res) =>{
   try {
-    const { symbol } = req.query;
+    const { symbol } = req.body;
     const pj = new PrecoJusto();
     const result = await pj.calcular(symbol);
     res.status(200).json({ symbol, ...result });
@@ -33,7 +33,7 @@ const precoJusto = async (req, res) =>{
 
 const deletePreco = async(req, res) => {
     try {
-        const { symbol } = req.query;
+        const { symbol } = req.body;
         const pj = new PrecoJusto();
         const result = await pj.deleteBySymbol(symbol);
         res.status(200).json(result);

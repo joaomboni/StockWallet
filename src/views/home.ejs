@@ -14,8 +14,10 @@
     </div>
 
     <div class="search-box">
-        <input type="text" placeholder="Procurar por ação/empresa/fii">
-        <button>EXIBIR</button>
+        <form id="formBusca">
+            <input id="symbolInput" type="text" placeholder="Procurar por ação/empresa">
+            <button type="submit">EXIBIR</button>
+        </form>
     </div>
 </header>
 
@@ -45,17 +47,75 @@
     <img src="https://www.luiztools.com.br/wp-content/uploads/2018/08/dinheiro.jpg" alt="Dinheiro">
 </section>
 
+<section id="resultado" class="card hidden">
+    <h2>Resultado da Análise</h2>
+
+    <div class="card-content">
+        <p><strong>Ativo:</strong> <span id="card-symbol"></span></p>
+
+        <hr>
+
+        <p><strong>Preço Atual:</strong> R$ <span id="card-price"></span></p>
+        <p><strong>Preço Justo:</strong> R$ <span id="card-precojusto"></span></p>
+
+        <hr>
+
+        <p><strong>LPA:</strong> <span id="card-lpa"></span></p>
+        <p><strong>VPA:</strong> <span id="card-vpa"></span></p>
+        <p><strong>P/L:</strong> <span id="card-pl"></span></p>
+        <p><strong>P/VP:</strong> <span id="card-pvp"></span></p>
+        <p><strong>Dividend Yield:</strong> <span id="card-dy"></span>%</p>
+    </div>
+</section>
+
 <section class="features">
     <h2>Funcionalidades</h2>
 
     <ul>
-        <li>📊 Principais indicadores financeiros das empresas listadas na B3.</li>
-        <li>🔍 Pesquisa avançada com filtros por PL, PVP, PSR, Dividend Yield, etc.</li>
+        <li>📊 Calculo de Preço Justo de Ações no Mundo.</li>
+        <!--<li>🔍 Pesquisa avançada com filtros por PL, PVP, PSR, Dividend Yield, etc.</li>
         <li>🏭 Comparação de empresas por setores e subsetores.</li>
         <li>📈 Visualização gráfica dos indicadores.</li>
-        <li>📥 Download dos dados em Excel.</li>
+        <li>📥 Download dos dados em Excel.</li>-->
     </ul>
 </section>
+
+<script>
+    document.querySelector("#formBusca").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const symbol = document.getElementById("symbolInput").value.trim();
+        if (!symbol) return;
+
+        const response = await fetch("/api/preco-justo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symbol })
+        });
+
+        const data = await response.json();
+
+        // Preencher campos com os dados vindos do MongoDB
+        document.getElementById("card-symbol").textContent = data.symbol ?? "-";
+
+        document.getElementById("card-price").textContent = data.fundamentos?.price ?? "-";
+        document.getElementById("card-lpa").textContent = data.fundamentos?.lpa ?? "-";
+        document.getElementById("card-vpa").textContent = data.fundamentos?.vpa ?? "-";
+        document.getElementById("card-pl").textContent = data.fundamentos?.pl ?? "-";
+        document.getElementById("card-pvp").textContent = data.fundamentos?.pvp ?? "-";
+
+        document.getElementById("card-dy").textContent =
+            data.fundamentos?.dividendYield
+                ? (data.fundamentos.dividendYield * 100).toFixed(2)
+                : "-";
+
+        document.getElementById("card-precojusto").textContent = data.precoJusto ?? "-";
+
+        // Mostrar o card
+        document.getElementById("resultado").classList.remove("hidden");
+    });
+</script>
+
 
 </body>
 </html>
