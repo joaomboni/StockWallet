@@ -80,7 +80,7 @@
 
         let lista = [];
         try {
-            const resp = await fetch("/api/create-preco-justo");
+            const resp = await fetch("/api/list-preco-justo");
             if (!resp.ok) throw new Error("Falha ao listar cards");
             lista = await resp.json();
         } catch (e) {
@@ -101,21 +101,46 @@
         const fundamentals = item.fundamentos ?? {};
         const card = document.createElement("div");
         card.classList.add("card-mini");
+
         card.innerHTML = `
-      <h3>${item.symbol}</h3>
-      <p><strong>Preço Atual:</strong> R$ ${fundamentals.price ?? "-"}</p>
-      <p><strong>Preço Justo:</strong> R$ ${item.precoJusto ?? "-"}</p>
-      <p><strong>LPA:</strong> ${fundamentals.lpa ?? "-"}</p>
-      <p><strong>VPA:</strong> ${fundamentals.vpa ?? "-"}</p>
-      <p><strong>P/L:</strong> ${fundamentals.pl ?? "-"}</p>
-      <p><strong>P/VP:</strong> ${fundamentals.pvp ?? "-"}</p>
-      <p><strong>DY:</strong> ${
+        <button class="delete-btn" data-id="${item._id}">🗑️</button>
+
+        <h3>${item.symbol}</h3>
+        <p><strong>Preço Atual:</strong> R$ ${fundamentals.price ?? "-"}</p>
+        <p><strong>Preço Justo:</strong> R$ ${item.precoJusto ?? "-"}</p>
+        <p><strong>LPA:</strong> ${fundamentals.lpa ?? "-"}</p>
+        <p><strong>VPA:</strong> ${fundamentals.vpa ?? "-"}</p>
+        <p><strong>P/L:</strong> ${fundamentals.pl ?? "-"}</p>
+        <p><strong>P/VP:</strong> ${fundamentals.pvp ?? "-"}</p>
+        <p><strong>DY:</strong> ${
             fundamentals.dividendYield
                 ? (fundamentals.dividendYield * 100).toFixed(2) + "%"
                 : "-"
         }</p>
     `;
+
         document.getElementById("cardsContainer").appendChild(card);
+
+        // Listener do botão deletar
+        card.querySelector(".delete-btn").addEventListener("click", async () => {
+            if (!confirm(`Remover ${item.symbol}?`)) return;
+
+            try {
+                const resp = await fetch(`/api/delete-preco-justo/${item.symbol}`, {
+                    method: "DELETE",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol: item.symbol })
+                });
+
+                if (resp.ok) {
+                    carregarCards();
+                } else {
+                    alert("Erro ao deletar registro.");
+                }
+            } catch (err) {
+                alert("Falha ao conectar com servidor.");
+            }
+        });
     }
 
     function criarCardPlus() {

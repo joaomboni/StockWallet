@@ -158,25 +158,69 @@ nav a.active {
 
  */
 
+/* GRID RESPONSIVO PARA OS CARDS */
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 20px 40px;
 }
-.card-mini, .card-plus {
-    min-height: 160px;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
+
+/* CARD DE CONTEÚDO */
+.card-mini {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    min-height: 260px;            /* aumenta o comprimento */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.card-mini:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* TÍTULO DO CARD */
+.card-mini h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 20px;
+    color: #0f527d;
+}
+
+/* LINHAS DE TEXTO DOS INDICADORES */
+.card-mini p {
+    margin: 4px 0;
+    font-size: 15px;
+}
+
+/* CARD DO BOTÃO + */
+.card-plus {
+    min-height: 260px;
+    border: 2px dashed #bbb;
+    border-radius: 12px;
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fafafa;
-}
-.card-plus {
     font-size: 48px;
-    color: #888;
+    color: #777;
     cursor: pointer;
+    transition: background .2s, transform .2s;
 }
+
+.card-plus:hover {
+    background: #f0f0f0;
+    border-color: #888;
+    transform: scale(1.03);
+}
+
+/*POPUP*/
 .popup.hidden { display: none; }
 .popup { /* backdrop */
     position: fixed; inset: 0; background: rgba(0,0,0,.4);
@@ -184,4 +228,31 @@ nav a.active {
 }
 .popup-content {
     background: #fff; padding: 16px; border-radius: 8px; min-width: 280px;
+}
+
+/*DELETE CARD*/
+.delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #c44;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    color: #ff0000;
+    transform: scale(1.2);
+}
+
+.card-mini {
+    position: relative;
+    padding: 15px;
+    text-align: left;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background: #ffffff;
 }

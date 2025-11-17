@@ -83,7 +83,10 @@ const createPrecoJusto = async (req, res) => {
 
 const deletePreco = async(req, res) => {
     try {
-        const { symbol } = req.body;
+        const symbol = req.params?.symbol || req.query?.symbol;
+        if(!symbol){
+            return res.status(400).json({error: "No symbol existe"});
+        }
         const pj = new PrecoJusto();
         const result = await pj.deleteBySymbol(symbol);
         res.status(200).json(result);
