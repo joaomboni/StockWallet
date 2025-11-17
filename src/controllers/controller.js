@@ -31,6 +31,18 @@ const precoJusto = async (req, res) =>{
   }
 }
 
+const createPrecoJusto = async (req, res) => {
+    try {
+        const { symbol } = req.body;
+        const pj = new PrecoJusto();
+        const result = await pj.calcularCreatePrecoJusto(symbol);
+        res.status(200).json({ symbol, ...result });
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ error: err.message || 'Erro ao calcular Preço Justo' });
+    }
+}
+
 const deletePreco = async(req, res) => {
     try {
         const { symbol } = req.body;
@@ -46,6 +58,7 @@ const controller = {
     helloWorld,
     consultaYahoo,
     precoJusto,
+    createPrecoJusto,
     deletePreco,
 };
 
