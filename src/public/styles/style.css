@@ -129,6 +129,7 @@ nav a.active {
     font-size: 16px;
 }
 
+/*
 .card {
     max-width: 500px;
     margin: 40px auto;
@@ -153,4 +154,34 @@ nav a.active {
 
 .hidden {
     display: none;
+}
+
+ */
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.card-mini, .card-plus {
+    min-height: 160px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+}
+.card-plus {
+    font-size: 48px;
+    color: #888;
+    cursor: pointer;
+}
+.popup.hidden { display: none; }
+.popup { /* backdrop */
+    position: fixed; inset: 0; background: rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center;
+}
+.popup-content {
+    background: #fff; padding: 16px; border-radius: 8px; min-width: 280px;
 }

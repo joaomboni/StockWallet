@@ -47,26 +47,19 @@
     <img src="https://www.luiztools.com.br/wp-content/uploads/2018/08/dinheiro.jpg" alt="Dinheiro">
 </section>
 
-<section id="resultado" class="card hidden">
-    <h2>Resultado da Análise</h2>
-
-    <div class="card-content">
-        <p><strong>Ativo:</strong> <span id="card-symbol"></span></p>
-
-        <hr>
-
-        <p><strong>Preço Atual:</strong> R$ <span id="card-price"></span></p>
-        <p><strong>Preço Justo:</strong> R$ <span id="card-precojusto"></span></p>
-
-        <hr>
-
-        <p><strong>LPA:</strong> <span id="card-lpa"></span></p>
-        <p><strong>VPA:</strong> <span id="card-vpa"></span></p>
-        <p><strong>P/L:</strong> <span id="card-pl"></span></p>
-        <p><strong>P/VP:</strong> <span id="card-pvp"></span></p>
-        <p><strong>Dividend Yield:</strong> <span id="card-dy"></span>%</p>
-    </div>
+<section class="cards-grid" id="cardsContainer">
+    <!-- Cards serão gerados por JS -->
 </section>
+
+<!-- POPUP PARA INSERIR SYMBOL -->
+<div id="popup" class="popup hidden">
+    <div class="popup-content">
+        <h3>Adicionar Ação</h3>
+        <input id="popupSymbol" type="text" placeholder="Ex: BBAS3.SA">
+        <button id="popupAdd">Adicionar</button>
+        <button id="popupCancel">Cancelar</button>
+    </div>
+</div>
 
 <section class="features">
     <h2>Funcionalidades</h2>
@@ -81,39 +74,97 @@
 </section>
 
 <script>
-    document.querySelector("#formBusca").addEventListener("submit", async (e) => {
-        e.preventDefault();
+    async function carregarCards() {
+        const container = document.getElementById("cardsContainer");
+        container.innerHTML = "";
 
-        const symbol = document.getElementById("symbolInput").value.trim();
+        let lista = [];
+        try {
+            const resp = await fetch("/api/create-preco-justo");
+            if (!resp.ok) throw new Error("Falha ao listar cards");
+            lista = await resp.json();
+        } catch (e) {
+            console.error(e);
+        }
+
+        // Renderiza cards existentes
+        lista.forEach(item => criarCard(item));
+
+        // Completa até 6 slots com botão de +
+        const faltam = Math.max(0, 6 - lista.length);
+        for (let i = 0; i < faltam; i++) {
+            criarCardPlus();
+        }
+    }
+
+    function criarCard(item) {
+        const fundamentals = item.fundamentos ?? {};
+        const card = document.createElement("div");
+        card.classList.add("card-mini");
+        card.innerHTML = `
+      <h3>${item.symbol}</h3>
+      <p><strong>Preço Atual:</strong> R$ ${fundamentals.price ?? "-"}</p>
+      <p><strong>Preço Justo:</strong> R$ ${item.precoJusto ?? "-"}</p>
+      <p><strong>LPA:</strong> ${fundamentals.lpa ?? "-"}</p>
+      <p><strong>VPA:</strong> ${fundamentals.vpa ?? "-"}</p>
+      <p><strong>P/L:</strong> ${fundamentals.pl ?? "-"}</p>
+      <p><strong>P/VP:</strong> ${fundamentals.pvp ?? "-"}</p>
+      <p><strong>DY:</strong> ${
+            fundamentals.dividendYield
+                ? (fundamentals.dividendYield * 100).toFixed(2) + "%"
+                : "-"
+        }</p>
+    `;
+        document.getElementById("cardsContainer").appendChild(card);
+    }
+
+    function criarCardPlus() {
+        const plus = document.createElement("div");
+        plus.classList.add("card-plus");
+        plus.textContent = "+";
+        plus.addEventListener("click", () => {
+            document.getElementById("popup").classList.remove("hidden");
+            document.getElementById("popupSymbol").focus();
+        });
+        document.getElementById("cardsContainer").appendChild(plus);
+    }
+
+    // ------ POPUP ------
+    document.getElementById("popupCancel").addEventListener("click", () => {
+        document.getElementById("popup").classList.add("hidden");
+        document.getElementById("popupSymbol").value = "";
+    });
+
+    document.getElementById("popupAdd").addEventListener("click", async () => {
+        const input = document.getElementById("popupSymbol");
+        const symbol = input.value.trim();
         if (!symbol) return;
 
-        const response = await fetch("/api/preco-justo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ symbol })
-        });
+        try {
+            const resp = await fetch("/api/create-preco-justo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ symbol })
+            });
 
-        const data = await response.json();
+            const data = await resp.json();
+            if (!resp.ok) {
+                alert(data.error || "Falha ao criar registro");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao criar registro");
+        }
 
-        // Preencher campos com os dados vindos do MongoDB
-        document.getElementById("card-symbol").textContent = data.symbol ?? "-";
+        document.getElementById("popup").classList.add("hidden");
+        input.value = "";
 
-        document.getElementById("card-price").textContent = data.fundamentos?.price ?? "-";
-        document.getElementById("card-lpa").textContent = data.fundamentos?.lpa ?? "-";
-        document.getElementById("card-vpa").textContent = data.fundamentos?.vpa ?? "-";
-        document.getElementById("card-pl").textContent = data.fundamentos?.pl ?? "-";
-        document.getElementById("card-pvp").textContent = data.fundamentos?.pvp ?? "-";
-
-        document.getElementById("card-dy").textContent =
-            data.fundamentos?.dividendYield
-                ? (data.fundamentos.dividendYield * 100).toFixed(2)
-                : "-";
-
-        document.getElementById("card-precojusto").textContent = data.precoJusto ?? "-";
-
-        // Mostrar o card
-        document.getElementById("resultado").classList.remove("hidden");
+        // Recarrega a grade
+        await carregarCards();
     });
+
+    // Carregar ao iniciar
+    carregarCards();
 </script>
 
 

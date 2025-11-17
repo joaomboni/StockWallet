@@ -106,7 +106,7 @@ class precoJusto extends yahoo {
         // CRIA REGISTRO NOMONGO
         // ------------------------------
         const database = db.getDatabase();
-        const collection = database.collection("preco-justo");
+        const collection = database.collection("precos");
 
         // --------- LIMITE DE DOCUMENTOS ACEITO -------
         //   const total = await collection.countDocuments({});
