@@ -12,6 +12,25 @@ class precoJusto extends yahoo {
         super()
     }
 
+    async getTables(symbol){
+        //return await this.getFundamentalsTable(symbol);
+        const pj = await this.calcular(symbol);
+
+        const fundamentals = await this.getFundamentalsTable(symbol);
+
+        const {
+            tipo, empresa,
+            setor, cotacao,
+            valorMercado, pl,
+            pvp, psr,
+            dividendYield, evEbitda,
+            lpa, vpa,
+            roe
+        } = fundamentals;
+
+        return {precoJusto: pj.precoJusto, fundamentals}
+    }
+
     async calcular(symbol) {
 
         //const yh = new yahoo();

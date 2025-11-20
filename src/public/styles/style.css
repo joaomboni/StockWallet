@@ -269,3 +269,30 @@ nav a.active {
     0% { background-position: 100% 0; }
     100% { background-position: 0 0; }
 }
+
+/* tabela*/
+.fund-table {
+    width: 70%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    font-size: 1.1rem;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.fund-table th, .fund-table td {
+    padding: 12px 18px;
+    border-bottom: 1px solid #eee;
+}
+
+.fund-table th {
+    background: #f2f2f2;
+    text-align: left;
+    width: 250px;
+}
+
+.fund-table tr:last-child td {
+    border-bottom: none;
+}

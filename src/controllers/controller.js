@@ -20,6 +20,18 @@ const consultaYahoo = async (req, res) => {
   }
 }
 
+const getFundamentalsTable = async (req, res) => {
+    try{
+        const symbol = req.body?.symbol || req.query?.symbol;
+        const pj = new PrecoJusto();
+        const result = await pj.getTables(symbol);
+        res.status(200).json({ symbol, ...result });
+    }catch(err){
+        console.error(err);
+        res.status(400).json({ error: err.message || 'Erro ao getFundamentalsTable' });
+    }
+}
+
 const updatePrecoJusto = async (req, res) =>{
   try {
     const symbol  = req.body?.symbol || req.query?.symbol;
@@ -111,6 +123,7 @@ const deletePreco = async(req, res) => {
 const controller = {
     helloWorld,
     consultaYahoo,
+    getFundamentalsTable,
     updatePrecoJusto,
     createPrecoJusto,
     deletePreco,
