@@ -74,6 +74,17 @@
 </section>
 
 <script>
+
+    function desenharSkeletons(qtd = 6) {
+        const container = document.getElementById('cardsContainer');
+        container.innerHTML = '';
+        for (let i = 0; i < qtd; i++) {
+            const sk = document.createElement('div');
+            sk.className = 'card-skeleton';
+            container.appendChild(sk);
+        }
+    }
+
     async function carregarCards() {
         const container = document.getElementById("cardsContainer");
         container.innerHTML = "";
@@ -91,7 +102,7 @@
         lista.forEach(item => criarCard(item));
 
         // Completa até 6 slots com botão de +
-        const faltam = Math.max(0, 6 - lista.length);
+        const faltam = Math.max(0, 12 - lista.length);
         for (let i = 0; i < faltam; i++) {
             criarCardPlus();
         }
@@ -190,6 +201,25 @@
 
     // Carregar ao iniciar
     carregarCards();
+
+    // Polling a cada 5 minutos (ajuste conforme necessário)
+    const FIVE_MIN = 5 * 60 * 1000;
+    let pollingTimer = null;
+    let carregando = false; // evita sobreposição
+
+    async function tick() {
+        if (carregando) return;
+        carregando = true;
+        try { await carregarCards(); } finally { carregando = false; }
+    }
+
+    pollingTimer = setInterval(tick, FIVE_MIN);
+
+    // Atualiza imediatamente quando a aba volta a ficar visível
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') tick();
+    });
+
 </script>
 
 

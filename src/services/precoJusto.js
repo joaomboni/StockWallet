@@ -53,10 +53,52 @@ class precoJusto extends yahoo {
                     fundamentos: fundamentals
                 }
             },
-            {upsert: true}  // cria se não existir
+            //{upsert: true}  // cria se não existir
         );
 
         return {precoJusto: pj, fundamentos: fundamentals};
+    }
+
+    // -----------------------------------------
+    // MÉTODO PARA RECALCULAR REGISTROS
+    // -----------------------------------------
+    async refreshAll() {
+        const database = db.getDatabase();
+        const collection = database.collection("precos");
+
+        // busque apenas os symbols para reduzir payload
+        const symbols = await collection.find({}, { projection: { _id: 0, symbol: 1 } }).toArray();
+        if (!symbols.length) {
+            return { processed: 0, updated: 0, errors: [] };
+        }
+
+        let updated = 0;
+        const errors = [];
+
+        // limite de concorrência simples para não estourar rate-limit da API de fundamentos
+        const concurrency = 3;
+        let i = 0;
+        const work = async () => {
+            while (i < symbols.length) {
+                const idx = i++;
+                const symbol = symbols[idx].symbol;
+                try {
+                    await this.calcular(symbol); // reutiliza seu método existente
+                    updated++;
+                } catch (err) {
+                    errors.push({ symbol, error: err.message });
+                }
+            }
+        };
+
+        // dispara N workers em paralelo
+        await Promise.all(Array.from({ length: concurrency }, work));
+
+        return {
+            processed: symbols.length,
+            updated,
+            errors,
+        };
     }
 
     // -----------------------------------------

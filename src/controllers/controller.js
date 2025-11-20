@@ -20,7 +20,7 @@ const consultaYahoo = async (req, res) => {
   }
 }
 
-const precoJusto = async (req, res) =>{
+const updatePrecoJusto = async (req, res) =>{
   try {
     const symbol  = req.body?.symbol || req.query?.symbol;
     if(!symbol){
@@ -35,6 +35,19 @@ const precoJusto = async (req, res) =>{
     res.status(code).json({ error: err.message || 'Erro ao calcular Preço Justo' });
   }
 }
+
+const refreshAll = async (req, res) => {
+    try {
+        const pj = new PrecoJusto();
+        const result = await pj.recalcularTodos();
+        // 207 Multi-Status é outra opção; 200 aqui com resumo é suficiente
+        return res.status(200).json(result);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err.message || 'Erro ao atualizar todos os preços' });
+    }
+};
+
 
 const listPrecos = async (req, res) => {
     try {
@@ -98,10 +111,11 @@ const deletePreco = async(req, res) => {
 const controller = {
     helloWorld,
     consultaYahoo,
-    precoJusto,
+    updatePrecoJusto,
     createPrecoJusto,
     deletePreco,
     listPrecos,
+    refreshAll,
 };
 
 module.exports = controller;
