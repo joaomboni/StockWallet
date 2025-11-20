@@ -124,29 +124,54 @@
     function gerarTabela(data) {
         const table = data.fundamentals ?? {};
 
-        return `
-        <table class="fund-table">
-            <tr><th>Símbolo</th><td>${data.symbol ?? "-"}</td></tr>
-            <tr><th>Preço Atual</th><td>${table.cotacao ?? "-"}</td></tr>
-            <tr><th>Preço Justo</th><td>${data.precoJusto ?? "-"}</td></tr>
-            <tr><th>LPA</th><td>${table.lpa ?? "-"}</td></tr>
-            <tr><th>VPA</th><td>${table.vpa ?? "-"}</td></tr>
-            <tr><th>P/L</th><td>${table.pl ?? "-"}</td></tr>
-            <tr><th>P/VP</th><td>${table.pvp ?? "-"}</td></tr>
-            <tr><th>Tipo</th><td>${table.tipo ?? "-"}</td></tr>
-            <tr><th>Empresa</th><td>${table.empresa ?? "-"}</td></tr>
-            <tr><th>Setor</th><td>${table.setor ?? "-"}</td></tr>
-            <tr><th>Valor de Mercado</th><td>${table.valorMercado ?? "-"}</td></tr>
-            <tr><th>PSR</th><td>${table.psr ?? "-"}</td></tr>
-            <tr><th>EV/EBITIDA</th><td>${table.evEbitda ?? "-"}</td></tr>
-            <tr><th>ROE</th><td>${table.roe ?? "-"}</td></tr>
-            <tr><th>Dividend Yield</th><td>${
-                table.dividendYield
-                    ? (table.dividendYield * 100).toFixed(2) + "%"
-                    : "-"
-            }</td></tr>
-        </table>
-    `;
+        const indicadores = [
+            ["Símbolo", data.symbol],
+            ["Preço Atual", table.cotacao],
+            ["Preço Justo", data.precoJusto],
+            ["Tipo", table.tipo],
+            ["Empresa", table.empresa],
+            ["Setor", table.setor],
+            ["Valor de Mercado", table.valorMercado],
+            ["P/L", table.pl],
+            ["P/VP", table.pvp],
+            ["PSR", table.psr],
+            ["LPA", table.lpa],
+            ["VPA", table.vpa],
+            ["ROE", table.roe],
+            ["EV/EBITDA", table.evEbitda],
+            ["Dividend Yield", table.dividendYield
+                ? (table.dividendYield * 100).toFixed(2) + "%"
+                : "-"
+            ],
+            ["EV/EBIT", table.evEbit],
+            ["ROIC", table.roic],
+            ["Liquidez Corrente", table.liquidezCorrente],
+            ["Div Br/Patrim.", table.divBrPatrim]
+        ];
+
+        const numColunas = 2; // Total de colunas
+        const porColuna = Math.ceil(indicadores.length / numColunas);
+
+        let html = `<div class="fund-grid">`;
+
+        for (let i = 0; i < numColunas; i++) {
+            html += `<table class="fund-table">`;
+
+
+            indicadores.slice(i * porColuna, (i + 1) * porColuna).forEach(([label, valor]) => {
+                html += `
+                <tr>
+                    <th>${label}</th>
+                    <td>${valor ?? "-"}</td>
+                </tr>
+            `;
+            });
+
+            html += `</table>`;
+        }
+
+        html += `</div>`;
+        return html;
     }
 
     async function carregarCards() {

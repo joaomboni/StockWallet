@@ -271,28 +271,31 @@ nav a.active {
 }
 
 /* tabela*/
-.fund-table {
-    width: 70%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    font-size: 1.1rem;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+.fund-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-left: 48px;
+    margin-top: 25px;
 }
 
-.fund-table th, .fund-table td {
-    padding: 12px 18px;
-    border-bottom: 1px solid #eee;
+.fund-table {
+    border-collapse: collapse;
+    background: #fafafa;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    width: 340px;
 }
 
 .fund-table th {
-    background: #f2f2f2;
+    padding: 6px;
+    font-weight: bold;
+    background: #eee;
     text-align: left;
-    width: 250px;
+    width: 150px;
 }
 
-.fund-table tr:last-child td {
-    border-bottom: none;
+.fund-table td {
+    padding: 6px;
 }
+
