@@ -312,3 +312,15 @@ nav a.active {
     display: inline-block;
     vertical-align: top;
 }
+
+.grafico-box {
+    width: 600px;
+    height: 350px;
+    margin-left: 48px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+.hidden {
+    display: none !important;
+}
