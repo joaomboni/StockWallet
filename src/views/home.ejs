@@ -50,6 +50,16 @@
 <!-- Tabela com dados fundamentalistas-->
 <section id="tabelaResultados"></section>
 
+<!-- Plotar Grafico -->
+<section id="graficoContainer" style="
+    width: 600px;
+    height: 350px;
+    margin-left: 48px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+"></section>
+
 <section class="cards-grid" id="cardsContainer">
     <!-- Cards serão gerados por JS -->
 </section>
@@ -76,7 +86,10 @@
     </ul>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial/dist/chartjs-chart-financial.min.js"></script>
 <script>
+
 
     function desenharSkeletons(qtd = 6) {
         const container = document.getElementById('cardsContainer');
@@ -95,7 +108,67 @@
         if (!symbol) return alert("Digite um ticker, ex: BBAS3.SA");
 
         carregatabela(symbol);
+        carregarGrafico(symbol);
     });
+
+    async function carregarGrafico(symbol) {
+        const container = document.getElementById("graficoContainer");
+        container.innerHTML = "";
+
+        const canvas = document.createElement("canvas");
+        canvas.id = "graficoCanvas";
+        canvas.width = 600;
+        canvas.height = 350;
+        container.appendChild(canvas);
+
+        const resp = await fetch(`/api/getCharts`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol })
+        });
+        if (!resp.ok) {
+            container.innerHTML = "<p style='color:red'>Erro ao carregar gráfico.</p>";
+            return;
+        }
+
+        const { candles, closes, sma200 } = await resp.json();
+        const labels = candles.map(c => c.date.split("T")[0]); // YYYY-MM-DD
+        const closePrices = closes;
+        const sma = sma200;
+
+        if (window.myChart) window.myChart.destroy();
+
+        const ctx = document.getElementById("graficoCanvas").getContext("2d");
+
+        window.myChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: "Preço",
+                        data: closePrices,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                    },
+                    {
+                        label: "SMA200",
+                        data: sma,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                    }
+                ]
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    x: { display: true },
+                    y: { display: true },
+                }
+            }
+        });
+    }
+
 
     async function carregatabela(symbol) {
 

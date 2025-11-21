@@ -15,4 +15,7 @@ router.post('/refresh-precos', controller.refreshAll);
 // TABELA
 router.post('/fundamentals', controller.getFundamentalsTable);
 
+//Grafico
+router.post('/getCharts', controller.getcharts);
+
 module.exports = router;

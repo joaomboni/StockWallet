@@ -299,3 +299,16 @@ nav a.active {
     padding: 6px;
 }
 
+.graficoContainer{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-right: 48px;
+    margin-top: 25px;
+}
+
+#tabelaResultados, #graficoContainer {
+    display: inline-block;
+    vertical-align: top;
+}

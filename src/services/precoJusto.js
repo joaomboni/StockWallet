@@ -2,14 +2,69 @@
 Preço Justo
 pj = sqrt((vpa * lpa) * 22,05)
 */
-
+const YahooFinance = require("yahoo-finance2").default;
+const yahooFinance = new YahooFinance();
 const yahoo = require("./yahoo");
 const db = require("../models/connect");
+const funcao = require("../functions/function");
 
 class precoJusto extends yahoo {
 
     constructor() {
         super()
+    }
+
+    async getCharts(symbol) {
+
+        try{
+            const today = new Date();
+            const start = new Date();
+            start.setFullYear(today.getFullYear() - 20); // Ultimos 5 anos
+
+            const result = await yahooFinance.chart(symbol, {
+                period1: start,
+                period2: today,
+                interval: "1d"
+            });
+
+            const quotes = result?.quotes;
+
+            if (!quotes || quotes.length === 0) {
+                return null;
+            }
+
+            // reduzindo só para o essencial
+            const candles = quotes.map(q => ({
+                date: q.date,
+                open: q.open,
+                close: q.close
+            }));
+
+            const closes = candles.map(c => c.close);
+            const sma200 = funcao.SMA(closes, 200);
+
+            return{
+                symbol,
+                candles,
+                closes,
+                sma200
+            }
+            // const closes = candles.map(c => c.close);
+            // // Médias móveis
+            // // const sma50 = funcao.SMA(closes, 50);
+            // // const sma100 = funcao.SMA(closes, 100);
+            //
+            // return {
+            //     symbol,
+            //     candles,
+            //     closes
+            //     // sma50,
+            //     // sma100,
+            //     // sma200
+            // };
+    }catch(e) {
+        console.error(e);
+        }
     }
 
     async getTables(symbol){

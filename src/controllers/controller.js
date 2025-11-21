@@ -32,6 +32,19 @@ const getFundamentalsTable = async (req, res) => {
     }
 }
 
+const getcharts = async (req, res) => {
+    try{
+        const symbol = req.body?.symbol || req.query?.symbol;
+        const pj = new PrecoJusto();
+        const result = await pj.getCharts(symbol);
+        res.status(200).json(result);
+    } catch(err){
+        console.error(err);
+        const code = err.code === 11000 ? 409 : 400;
+        res.status(code).json({ error: err.message || 'Erro ao gerar grafico' });
+    }
+}
+
 const updatePrecoJusto = async (req, res) =>{
   try {
     const symbol  = req.body?.symbol || req.query?.symbol;
@@ -129,6 +142,7 @@ const controller = {
     deletePreco,
     listPrecos,
     refreshAll,
+    getcharts,
 };
 
 module.exports = controller;
