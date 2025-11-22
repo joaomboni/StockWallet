@@ -19,7 +19,7 @@ class precoJusto extends yahoo {
         try{
             const today = new Date();
             const start = new Date();
-            start.setFullYear(today.getFullYear() - 20); // Ultimos 5 anos
+            start.setFullYear(today.getFullYear() - 20); 
 
             const result = await yahooFinance.chart(symbol, {
                 period1: start,
@@ -149,7 +149,7 @@ class precoJusto extends yahoo {
         let updated = 0;
         const errors = [];
 
-        // limite de concorrência simples para não estourar rate-limit da API de fundamentos
+        // limite de concorrência simples
         const concurrency = 3;
         let i = 0;
         const work = async () => {
@@ -157,7 +157,7 @@ class precoJusto extends yahoo {
                 const idx = i++;
                 const symbol = symbols[idx].symbol;
                 try {
-                    await this.calcular(symbol); // reutiliza seu método existente
+                    await this.calcular(symbol);
                     updated++;
                 } catch (err) {
                     errors.push({ symbol, error: err.message });
@@ -165,7 +165,7 @@ class precoJusto extends yahoo {
             }
         };
 
-        // dispara N workers em paralelo
+    
         await Promise.all(Array.from({ length: concurrency }, work));
 
         return {
