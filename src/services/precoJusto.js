@@ -41,13 +41,13 @@ class precoJusto extends yahoo {
             }));
 
             const closes = candles.map(c => c.close);
-            const sma200 = funcao.SMA(closes, 200);
+            const ema200 = funcao.EMA(closes, 200);
 
             return{
                 symbol,
                 candles,
                 closes,
-                sma200
+                ema200
             }
             // const closes = candles.map(c => c.close);
             // // Médias móveis

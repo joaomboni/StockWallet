@@ -7,6 +7,21 @@ function SMA(values, period) {
     });
 }
 
+// Função (Média Exponencial)
+function EMA(values, period) {
+    const alpha = 2 / (period + 1);
+    let ema = values[0];
+    const result = [ema];
+
+    for (let i = 1; i < values.length; i++) {
+        ema = (values[i] * alpha) + (ema * (1 - alpha));
+        result.push(ema);
+    }
+
+    return result;
+}
+
 module.exports = {
     SMA,
+    EMA,
 };
