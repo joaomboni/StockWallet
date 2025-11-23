@@ -206,6 +206,7 @@ class precoJusto extends yahoo {
 
         //const yh = new yahoo();
         const fundamentals = await this.fetchFundamentals(symbol);
+        const media = await this.getCharts(symbol);
 
         const {vpa, lpa} = fundamentals;
 
@@ -236,6 +237,8 @@ class precoJusto extends yahoo {
 
         const objRegistro = {
             symbol,
+            EMA50: media.ema50.at(-1),
+            EMA200: media.ema200.at(-1),
             precoJusto: pj,
             fundamentos: fundamentals,
             createdAt: new Date(),

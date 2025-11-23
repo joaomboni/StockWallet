@@ -281,6 +281,8 @@
     }
 
     function criarCard(item) {
+        const ema50 = item.EMA50;
+        const ema200 = item.EMA200;
         const fundamentals = item.fundamentos ?? {};
         const card = document.createElement("div");
         card.classList.add("card-mini");
@@ -289,15 +291,17 @@
         <button class="delete-btn" data-id="${item._id}">🗑️</button>
 
         <h3>${item.symbol}</h3>
-        <p><strong>Preço Atual:</strong> R$ ${fundamentals.price ?? "-"}</p>
-        <p><strong>Preço Justo:</strong> R$ ${item.precoJusto ?? "-"}</p>
-        <p><strong>LPA:</strong> ${fundamentals.lpa ?? "-"}</p>
-        <p><strong>VPA:</strong> ${fundamentals.vpa ?? "-"}</p>
-        <p><strong>P/L:</strong> ${fundamentals.pl ?? "-"}</p>
-        <p><strong>P/VP:</strong> ${fundamentals.pvp ?? "-"}</p>
+        <p><strong>EMA50:</strong> R$ ${ema50.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>EMA200:</strong> R$ ${ema200.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>Preço Atual:</strong> R$ ${fundamentals.price.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>Preço Justo:</strong> R$ ${item.precoJusto.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>LPA:</strong> ${fundamentals.lpa.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>VPA:</strong> ${fundamentals.vpa.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>P/L:</strong> ${fundamentals.pl.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>P/VP:</strong> ${fundamentals.pvp.toFixed(2).replace(".", ",") ?? "-"}</p>
         <p><strong>DY:</strong> ${
             fundamentals.dividendYield
-                ? (fundamentals.dividendYield * 100).toFixed(2) + "%"
+                ? (fundamentals.dividendYield * 100).toFixed(2).replace(".", ",") + "%"
                 : "-"
         }</p>
     `;
