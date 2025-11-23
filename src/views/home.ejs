@@ -170,6 +170,11 @@
         const container = document.getElementById("tabelaResultados");
         container.innerHTML = "<p>Carregando dados...</p>";
 
+        if(symbol === "BTC" || symbol === "btc"){
+            container.innerHTML = "<p style='color:red'>Bitcon não gera tabela de dados fundamentalista.</p>"
+            return;
+        }
+
         try {
             const resp = await fetch(`/api/fundamentals`,{
                 method: 'POST',
@@ -182,6 +187,8 @@
             const fundamentals = await resp.json();
 
             container.innerHTML = gerarTabela(fundamentals);
+
+
 
         } catch (error) {
             console.error(error);

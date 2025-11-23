@@ -6,7 +6,7 @@ const YahooFinance = require("yahoo-finance2").default;
 const yahooFinance = new YahooFinance();
 const yahoo = require("./yahoo");
 const db = require("../models/connect");
-const funcao = require("../functions/function");
+const funcao = require("../helpers/helper");
 
 class precoJusto extends yahoo {
 
@@ -72,6 +72,7 @@ class precoJusto extends yahoo {
         const pj = await this.calcular(symbol);
 
         const fundamentals = await this.getFundamentalsTable(symbol);
+
 
         const {
             tipo, empresa,
