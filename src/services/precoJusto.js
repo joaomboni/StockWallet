@@ -42,12 +42,14 @@ class precoJusto extends yahoo {
 
             const closes = candles.map(c => c.close);
             const ema200 = funcao.EMA(closes, 200);
+            const ema50 = funcao.EMA(closes, 50);
 
             return{
                 symbol,
                 candles,
                 closes,
-                ema200
+                ema200,
+                ema50
             }
             // const closes = candles.map(c => c.close);
             // // Médias móveis

@@ -123,10 +123,12 @@
             return;
         }
 
-        const { candles, closes, ema200 } = await resp.json();
+        const { candles, closes, ema200, ema50 } = await resp.json();
         const labels = candles.map(c => c.date.split("T")[0]); // YYYY-MM-DD
         const closePrices = closes;
-        const ema = ema200;
+        const emaG200 = ema200;
+        const emaG50 = ema50;
+
 
         if (window.myChart) window.myChart.destroy();
 
@@ -145,8 +147,14 @@
                     },
                     {
                         label: "EMA200",
-                        data: ema,
+                        data: emaG200,
                         borderWidth: 2,
+                        pointRadius: 0,
+                    },
+                    {
+                        label: "EMA50",
+                        data: emaG50,
+                        borderWidth: 1,
                         pointRadius: 0,
                     }
                 ]
