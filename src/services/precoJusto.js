@@ -160,7 +160,7 @@ class precoJusto extends yahoo {
                 const idx = i++;
                 const symbol = symbols[idx].symbol;
                 try {
-                    await this.calcular(symbol); // reutiliza seu método existente
+                    await this.calcular(symbol);
                     updated++;
                 } catch (err) {
                     errors.push({ symbol, error: err.message });
