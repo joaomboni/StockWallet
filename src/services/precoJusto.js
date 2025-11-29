@@ -152,7 +152,7 @@ class precoJusto extends yahoo {
         let updated = 0;
         const errors = [];
 
-        // limite de concorrência simples para não estourar rate-limit da API de fundamentos
+        // limite de concorrência simples
         const concurrency = 3;
         let i = 0;
         const work = async () => {
@@ -168,7 +168,7 @@ class precoJusto extends yahoo {
             }
         };
 
-        // dispara N workers em paralelo
+    
         await Promise.all(Array.from({ length: concurrency }, work));
 
         return {

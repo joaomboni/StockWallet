@@ -1,4 +1,4 @@
-// Note: yahoo-finance2 v3 expõe uma classe; é necessário instanciar antes de usar
+
 const YahooFinance = require("yahoo-finance2").default;
 const yahooFinance = new YahooFinance();
 
