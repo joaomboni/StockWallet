@@ -23,7 +23,7 @@
 
 <nav>
     <a class="active" href="#">PÁGINA INICIAL</a>
-    <a href="#">SEED</a>
+    <a class="seed" href="#">SEED</a>
 <!--    <div class="dropdown">-->
 <!--        <button class="dropbtn">MAIS OPÇÕES ▼</button>-->
 <!--        <div class="dropdown-content">-->
@@ -81,6 +81,31 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial/dist/chartjs-chart-financial.min.js"></script>
 <script>
 
+    document.querySelector(".active").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const resp = await fetch("/api/hello-world");
+    });
+
+    // document.querySelector(".seed").addEventListener("click", async (e) => {
+    //     e.preventDefault();
+    //     const resp = await fetch("/api/seed");
+    // });
+
+    async function reloadPage(symbol) {
+        container.classList.add("hidden");
+        container.innerHTML = "";
+
+
+        const resp = await fetch(`/api/hello-world`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (!resp.ok) {
+            container.innerHTML = "<p style='color:red'>Erro ao retorno da página inicial.</p>";
+            return;
+        }
+    }
+
 
     function desenharSkeletons(qtd = 6) {
         const container = document.getElementById('cardsContainer');
@@ -91,6 +116,8 @@
             container.appendChild(sk);
         }
     }
+
+
 
     document.getElementById("formBusca").addEventListener("submit", async (e) => {
         e.preventDefault();  // impede reload
@@ -161,6 +188,26 @@
             },
             options: {
                 responsive: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Gráfico de ${symbol}`,
+                    },
+                    font: {
+                        size: 12,
+                        family: 'Arial',
+                    },
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 10,
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
                 scales: {
                     x: { display: true },
                     y: { display: true },

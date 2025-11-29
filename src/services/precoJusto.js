@@ -19,7 +19,7 @@ class precoJusto extends yahoo {
         try{
             const today = new Date();
             const start = new Date();
-            start.setFullYear(today.getFullYear() - 20); // Ultimos 5 anos
+            start.setFullYear(today.getFullYear() - 100); // Ultimos 5 anos
 
             const result = await yahooFinance.chart(symbol, {
                 period1: start,
