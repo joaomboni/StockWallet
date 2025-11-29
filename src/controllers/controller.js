@@ -64,12 +64,17 @@ const updatePrecoJusto = async (req, res) =>{
 const refreshAll = async (req, res) => {
     try {
         const pj = new PrecoJusto();
-        const result = await pj.recalcularTodos();
-        // 207 Multi-Status é outra opção; 200 aqui com resumo é suficiente
-        return res.status(200).json(result);
+        const result = await pj.refreshAll();
+        if(req && res) {
+            return res.status(200).json(result);
+        }
+        console.log('Atualização completa sem resposta HTTP:', result);
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: err.message || 'Erro ao atualizar todos os preços' });
+        if(req && res) {
+            return res.status(500).json({error: err.message || 'Erro ao atualizar todos os preços'});
+        }
+        console.error('Erro ao atualizar todos os preços:', err);
     }
 };
 

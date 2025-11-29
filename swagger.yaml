@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: API Busca Dados - Fundamentus
+  title: API StockWallet
   version: "1.0.0"
-  description: API que expõe endpoints para consultar dados financeiros (Yahoo Finance) e calcular o "Preço Justo".
+  description: API para análise fundamentalista e técnica de ações. Permite consultar dados do Yahoo Finance, calcular Preço Justo, gerar gráficos e gerenciar uma watchlist.
 servers:
   - url: http://localhost:{port}
     description: Servidor local
@@ -14,30 +14,33 @@ servers:
 paths:
   /api/hello-world:
     get:
-      summary: Retorna uma saudação simples
+      summary: Rota de teste
+      description: Retorna a página inicial renderizada (HTML).
       responses:
         '200':
-          description: Mensagem de sucesso
+          description: Página Home renderizada com sucesso
           content:
-            text/plain:
+            text/html:
               schema:
                 type: string
-                example: "Hello World!"
 
   /api/api-busca:
     post:
       summary: Consulta fundamentos via Yahoo Finance
-      description: Retorna indicadores básicos (P/L, LPA estimado, P/VPA, VPA, Dividend Yield e preço atual).
-      parameters:
-        - name: symbol
-          in: query
-          description: "Símbolo/ticker a ser consultado (ex: PETR4.SA, AAPL)"
-          required: true
-          schema:
-            type: string
+      description: Retorna indicadores básicos de um ativo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  example: "PETR4.SA"
       responses:
         '200':
-          description: Dados retornados com fundamentos
+          description: Dados fundamentais retornados
           content:
             application/json:
               schema:
@@ -49,55 +52,167 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/preco-justo:
-    post:
-      summary: Calcula e persiste o Preço Justo
-      description: Calcula o preço justo baseado em VPA e LPA, persiste no MongoDB e retorna o resultado.
+  /api/list-preco-justo:
+    get:
+      summary: Listar Watchlist
+      description: Retorna a lista de ativos salvos na watchlist com seus cálculos de preço justo e indicadores. Se passado um symbol, retorna apenas aquele.
       parameters:
         - name: symbol
           in: query
-          description: "Símbolo/ticker a ser calculado (ex: PETR4.SA, AAPL)"
-          required: true
+          description: Filtra por um símbolo específico (Opcional)
           schema:
             type: string
       responses:
         '200':
-          description: Preço justo calculado e salvo
+          description: Lista de ativos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PrecoJustoDocument'
+        '404':
+          description: Ativo não encontrado (se filtrado)
+
+  /api/create-preco-justo:
+    post:
+      summary: Adicionar à Watchlist
+      description: Calcula o preço justo e adiciona o ativo à watchlist.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  example: "WEGE3.SA"
+      responses:
+        '201':
+          description: Ativo adicionado com sucesso
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PrecoJustoResponse'
         '400':
-          description: Dados insuficientes ou erro no cálculo
+          description: Erro ao adicionar
+
+  /api/update-preco-justo:
+    post:
+      summary: Recalcular Preço Justo
+      description: Força o recálculo do preço justo para um ativo específico.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  example: "VALE3.SA"
+      responses:
+        '200':
+          description: Preço recalculado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/PrecoJustoResponse'
 
-  /api/delete:
+  /api/delete-preco-justo/{symbol}:
     delete:
-      summary: Exclui o registro de Preço Justo por símbolo
-      description: Remove do MongoDB o documento associado ao símbolo informado.
+      summary: Remover da Watchlist
+      description: Remove um ativo da watchlist.
       parameters:
         - name: symbol
-          in: query
-          description: "Símbolo/ticker a ser excluído (ex: PETR4.SA, AAPL)"
+          in: path
           required: true
+          description: O símbolo do ativo a ser removido
           schema:
             type: string
       responses:
         '200':
-          description: Registro deletado com sucesso
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+          description: Removido com sucesso
         '400':
-          description: Erro ao deletar (por exemplo, símbolo não encontrado)
+          description: Erro ao remover
+
+  /api/refresh-precos:
+    post:
+      summary: Atualizar Todos
+      description: Atualiza os dados de todos os ativos da watchlist. (Usado pelo Cron Job ou manualmente).
+      responses:
+        '200':
+          description: Todos os ativos atualizados
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Updated 5 stocks."
+
+  /api/fundamentals:
+    post:
+      summary: Obter Tabela Fundamentalista
+      description: Retorna dados detalhados para popular a tabela fundamentalista na interface.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  example: "BBAS3.SA"
+      responses:
+        '200':
+          description: Dados completos retornados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrecoJustoResponse'
+
+  /api/getCharts:
+    post:
+      summary: Dados do Gráfico
+      description: Retorna dados históricos de preços e médias móveis (EMA50, EMA200) para plotagem.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  example: "ITUB4.SA"
+      responses:
+        '200':
+          description: Dados do gráfico retornados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candles:
+                    type: array
+                    items:
+                      type: object
+                  closes:
+                    type: array
+                    items:
+                      type: number
+                  ema200:
+                    type: array
+                    items:
+                      type: number
+                  ema50:
+                    type: array
+                    items:
+                      type: number
 
 components:
   schemas:
@@ -122,6 +237,12 @@ components:
         price:
           type: number
           nullable: true
+        roe:
+          type: number
+          nullable: true
+        evEbitda:
+          type: number
+          nullable: true
       example:
         pl: 12.34
         lpa: 1.56
@@ -129,6 +250,8 @@ components:
         vpa: 10.2
         dividendYield: 0.03
         price: 19.2
+        roe: 15.5
+        evEbitda: 8.5
 
     YahooResponse:
       type: object
@@ -137,29 +260,11 @@ components:
           type: string
         pl:
           type: number
-          nullable: true
-        lpa:
-          type: number
-          nullable: true
-        pvp:
-          type: number
-          nullable: true
-        vpa:
-          type: number
-          nullable: true
-        dividendYield:
-          type: number
-          nullable: true
         price:
           type: number
-          nullable: true
       example:
         symbol: "PETR4.SA"
         pl: 12.34
-        lpa: 1.56
-        pvp: 1.8
-        vpa: 10.2
-        dividendYield: 0.03
         price: 19.2
 
     PrecoJustoResponse:
@@ -177,18 +282,29 @@ components:
         fundamentos:
           pl: 12.34
           lpa: 1.56
-          pvp: 1.8
-          vpa: 10.2
-          dividendYield: 0.03
           price: 19.2
 
-    MessageResponse:
+    PrecoJustoDocument:
       type: object
       properties:
-        message:
+        _id:
           type: string
-      example:
-        message: "Registro com symbol PETR4.SA deletado com sucesso."
+        symbol:
+          type: string
+        precoJusto:
+          type: number
+        EMA50:
+          type: number
+        EMA200:
+          type: number
+        fundamentos:
+          $ref: '#/components/schemas/Fundamentals'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     ErrorResponse:
       type: object
@@ -197,5 +313,3 @@ components:
           type: string
       example:
         error: "Dados insuficientes para calcular o Preço Justo"
-
-tags: []

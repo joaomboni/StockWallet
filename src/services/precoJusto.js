@@ -6,7 +6,7 @@ const YahooFinance = require("yahoo-finance2").default;
 const yahooFinance = new YahooFinance();
 const yahoo = require("./yahoo");
 const db = require("../models/connect");
-const funcao = require("../functions/function");
+const funcao = require("../helpers/helper");
 
 class precoJusto extends yahoo {
 
@@ -19,7 +19,7 @@ class precoJusto extends yahoo {
         try{
             const today = new Date();
             const start = new Date();
-            start.setFullYear(today.getFullYear() - 20); 
+            start.setFullYear(today.getFullYear() - 100); // Ultimos 5 anos
 
             const result = await yahooFinance.chart(symbol, {
                 period1: start,
@@ -42,12 +42,14 @@ class precoJusto extends yahoo {
 
             const closes = candles.map(c => c.close);
             const ema200 = funcao.EMA(closes, 200);
+            const ema50 = funcao.EMA(closes, 50);
 
             return{
                 symbol,
                 candles,
                 closes,
-                ema200
+                ema200,
+                ema50
             }
             // const closes = candles.map(c => c.close);
             // // Médias móveis
@@ -72,6 +74,7 @@ class precoJusto extends yahoo {
         const pj = await this.calcular(symbol);
 
         const fundamentals = await this.getFundamentalsTable(symbol);
+
 
         const {
             tipo, empresa,
@@ -203,6 +206,7 @@ class precoJusto extends yahoo {
 
         //const yh = new yahoo();
         const fundamentals = await this.fetchFundamentals(symbol);
+        const media = await this.getCharts(symbol);
 
         const {vpa, lpa} = fundamentals;
 
@@ -233,6 +237,8 @@ class precoJusto extends yahoo {
 
         const objRegistro = {
             symbol,
+            EMA50: media.ema50.at(-1),
+            EMA200: media.ema200.at(-1),
             precoJusto: pj,
             fundamentos: fundamentals,
             createdAt: new Date(),

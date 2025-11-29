@@ -23,7 +23,7 @@
 
 <nav>
     <a class="active" href="#">PÁGINA INICIAL</a>
-    <a href="#">SEED</a>
+    <a class="seed" href="#">SEED</a>
 <!--    <div class="dropdown">-->
 <!--        <button class="dropbtn">MAIS OPÇÕES ▼</button>-->
 <!--        <div class="dropdown-content">-->
@@ -38,7 +38,7 @@
 
 <section class="intro">
     <p>
-        Bem-vindo ao StockWallet — sua plataforma para decisões de investimento mais inteligentes.
+        StockWallet: Sua central de inteligência financeira. Combine análise técnica e fundamentalista para encontrar as melhores oportunidades da bolsa.
     </p>
 
     <!--<img src="../public/image/dollar.png" alt="Dinheiro">-->
@@ -81,6 +81,31 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial/dist/chartjs-chart-financial.min.js"></script>
 <script>
 
+    document.querySelector(".active").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const resp = await fetch("/api/hello-world");
+    });
+
+    // document.querySelector(".seed").addEventListener("click", async (e) => {
+    //     e.preventDefault();
+    //     const resp = await fetch("/api/seed");
+    // });
+
+    async function reloadPage(symbol) {
+        container.classList.add("hidden");
+        container.innerHTML = "";
+
+
+        const resp = await fetch(`/api/hello-world`,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (!resp.ok) {
+            container.innerHTML = "<p style='color:red'>Erro ao retorno da página inicial.</p>";
+            return;
+        }
+    }
+
 
     function desenharSkeletons(qtd = 6) {
         const container = document.getElementById('cardsContainer');
@@ -91,6 +116,8 @@
             container.appendChild(sk);
         }
     }
+
+
 
     document.getElementById("formBusca").addEventListener("submit", async (e) => {
         e.preventDefault();  // impede reload
@@ -123,10 +150,12 @@
             return;
         }
 
-        const { candles, closes, ema200 } = await resp.json();
+        const { candles, closes, ema200, ema50 } = await resp.json();
         const labels = candles.map(c => c.date.split("T")[0]); // YYYY-MM-DD
         const closePrices = closes;
-        const ema = ema200;
+        const emaG200 = ema200;
+        const emaG50 = ema50;
+
 
         if (window.myChart) window.myChart.destroy();
 
@@ -145,14 +174,40 @@
                     },
                     {
                         label: "EMA200",
-                        data: ema,
+                        data: emaG200,
                         borderWidth: 2,
+                        pointRadius: 0,
+                    },
+                    {
+                        label: "EMA50",
+                        data: emaG50,
+                        borderWidth: 1,
                         pointRadius: 0,
                     }
                 ]
             },
             options: {
                 responsive: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Gráfico de ${symbol}`,
+                    },
+                    font: {
+                        size: 12,
+                        family: 'Arial',
+                    },
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 10,
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
                 scales: {
                     x: { display: true },
                     y: { display: true },
@@ -170,6 +225,11 @@
         const container = document.getElementById("tabelaResultados");
         container.innerHTML = "<p>Carregando dados...</p>";
 
+        if(symbol === "BTC" || symbol === "btc"){
+            container.innerHTML = "<p style='color:red'>Bitcon não gera tabela de dados fundamentalista.</p>"
+            return;
+        }
+
         try {
             const resp = await fetch(`/api/fundamentals`,{
                 method: 'POST',
@@ -182,6 +242,8 @@
             const fundamentals = await resp.json();
 
             container.innerHTML = gerarTabela(fundamentals);
+
+
 
         } catch (error) {
             console.error(error);
@@ -266,6 +328,8 @@
     }
 
     function criarCard(item) {
+        const ema50 = item.EMA50;
+        const ema200 = item.EMA200;
         const fundamentals = item.fundamentos ?? {};
         const card = document.createElement("div");
         card.classList.add("card-mini");
@@ -274,15 +338,17 @@
         <button class="delete-btn" data-id="${item._id}">🗑️</button>
 
         <h3>${item.symbol}</h3>
-        <p><strong>Preço Atual:</strong> R$ ${fundamentals.price ?? "-"}</p>
-        <p><strong>Preço Justo:</strong> R$ ${item.precoJusto ?? "-"}</p>
-        <p><strong>LPA:</strong> ${fundamentals.lpa ?? "-"}</p>
-        <p><strong>VPA:</strong> ${fundamentals.vpa ?? "-"}</p>
-        <p><strong>P/L:</strong> ${fundamentals.pl ?? "-"}</p>
-        <p><strong>P/VP:</strong> ${fundamentals.pvp ?? "-"}</p>
+        <p><strong>EMA50:</strong> R$ ${ema50.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>EMA200:</strong> R$ ${ema200.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>Preço Atual:</strong> R$ ${fundamentals.price.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>Preço Justo:</strong> R$ ${item.precoJusto.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>LPA:</strong> ${fundamentals.lpa.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>VPA:</strong> ${fundamentals.vpa.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>P/L:</strong> ${fundamentals.pl.toFixed(2).replace(".", ",") ?? "-"}</p>
+        <p><strong>P/VP:</strong> ${fundamentals.pvp.toFixed(2).replace(".", ",") ?? "-"}</p>
         <p><strong>DY:</strong> ${
             fundamentals.dividendYield
-                ? (fundamentals.dividendYield * 100).toFixed(2) + "%"
+                ? (fundamentals.dividendYield * 100).toFixed(2).replace(".", ",") + "%"
                 : "-"
         }</p>
     `;
