@@ -1,227 +1,114 @@
-# API Busca Dados — Fundamentus
+# StockWallet 📈
 
-API em Node.js/Express para consultar dados financeiros (Yahoo Finance), calcular o "Preço Justo" e persistir resultados no MongoDB. A documentação interativa está disponível via Swagger UI em `/docs`.
+O **StockWallet** é uma plataforma completa de análise de investimentos que combina **análise fundamentalista** e **técnica** para auxiliar na tomada de decisão. O sistema calcula o Preço Justo de ativos, monitora tendências com Médias Móveis (EMA) e oferece um dashboard visual com indicadores financeiros.
 
-## Sumário
-- Visão geral
-- Funcionalidades
-- Arquitetura e Fluxo
-- Requisitos
-- Instalação
-- Configuração (.env)
-- Executando o projeto
-- Documentação (Swagger UI)
-- Endpoints principais (com exemplos)
-- Banco de dados e persistência
-- Cálculo do Preço Justo
-- Tratamento de erros
-- Dicas e solução de problemas
-- Scripts npm
-- Estrutura do projeto
-- Licença
+## 🚀 Funcionalidades
 
-## Visão geral
-Este serviço expõe endpoints para:
-- Obter indicadores básicos de um ativo (via Yahoo Finance);
-- Calcular o Preço Justo de um ativo a partir de VPA e LPA (calculado a partir de preço e P/L);
-- Salvar/atualizar o resultado no MongoDB;
-- Excluir um resultado salvo pelo símbolo (ticker).
+- **Dashboard Interativo**: Acompanhamento visual de ativos com cards informativos.
+- **Análise Técnica**: Gráficos com Médias Móveis Exponenciais (EMA50 e EMA200) para identificar tendências.
+- **Análise Fundamentalista**: Tabela completa com indicadores como P/L, P/VP, ROE, Dividend Yield, Valuation, etc.
+- **Cálculo de Preço Justo**: Algoritmo automático (baseado na fórmula de Graham) para estimar o valor intrínseco da ação.
+- **Watchlist Inteligente**: Adicione e monitore seus ativos favoritos.
+- **Atualização Automática**: Cron jobs configurados para atualizar cotações e indicadores periodicamente.
 
-Base path da API: `/api`
+## 🛠️ Tecnologias
 
-## Funcionalidades
-- Consulta de fundamentos (P/L, LPA estimado, P/VPA, VPA, Dividend Yield e preço atual).
-- Cálculo de Preço Justo e upsert no MongoDB (coleção `precos`).
-- Limite de até 5 registros persistidos (para controle e simplicidade).
-- Exclusão de registro por `symbol`.
+- **Backend**: Node.js, Express
+- **Frontend**: EJS (Server-side rendering), CSS3, Chart.js
+- **Banco de Dados**: MongoDB
+- **Infraestrutura**: Docker, Docker Compose
+- **Dados**: Integração com Yahoo Finance
+- **Documentação**: Swagger UI
 
-## Arquitetura e Fluxo
-- Node.js + Express
-- Yahoo Finance (pacote `yahoo-finance2`) para dados de mercado
-- MongoDB (driver oficial) para persistência
-- Swagger UI integrado via `swagger-ui-express` em `/docs`
+## 📋 Pré-requisitos
 
-Fluxo do cálculo:
-1. Buscar fundamentos do símbolo informado no Yahoo Finance;
-2. Calcular LPA aproximado como `price / P/L` quando ambos disponíveis;
-3. Calcular `Preço Justo = sqrt(VPA * LPA * 22.05)`;
-4. Salvar/atualizar documento em `precos` (chave por `symbol`).
+- [Node.js](https://nodejs.org/) (v18+)
+- [Docker](https://www.docker.com/) e Docker Compose
 
-## Requisitos
-- Node.js 18+ (recomendado)
-- npm 8+
-- MongoDB em execução (local ou remoto)
+## 🔧 Instalação e Execução Local
 
-## Instalação
-1. Clonar o repositório (ou abrir a pasta do projeto).
-2. Instalar dependências:
-   ```bash
-   npm install
-   ```
+Siga este passo a passo para rodar o projeto localmente de forma segura, sem expor suas credenciais.
 
-## Configuração (.env)
-Crie um arquivo `.env` na raiz do projeto (baseie-se em `.env-example` se existir) com as variáveis:
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/seu-usuario/StockWallet.git
+cd StockWallet
 ```
+
+### 2. Configuração de Variáveis de Ambiente (.env)
+
+⚠️ **IMPORTANTE:** Nunca commite seu arquivo `.env`. Ele contém senhas e chaves sensíveis.
+
+Crie um arquivo chamado `.env` na raiz do projeto. Você pode copiar o modelo abaixo:
+
+**Arquivo `.env`:**
+
+```ini
+# Configuração do Servidor
 PROXY_PORT=3000
-MONGO_URI=mongodb://localhost:27017
-MONGO_DB=fundamentus
-```
-- `PROXY_PORT` define a porta do servidor Express.
-- `MONGO_URI` string de conexão do MongoDB.
-- `MONGO_DB` nome do banco usado pelo app.
 
-## Executando o projeto
-- Desenvolvimento (auto-reload com nodemon):
-  ```bash
-  npm run dev
-  ```
-- Produção / execução simples:
-  ```bash
-  npm start
-  ```
+# Configuração do Banco de Dados (URI para a aplicação)
+# Formato: mongodb://usuario:senha@host:porta/database?authSource=admin
+MONGO_URI=mongodb://admin:minha_senha_segura@localhost:27017/stockwallet?authSource=admin
 
-Se tudo estiver correto, você verá algo como:
-```
-📦 MongoDB conectado com sucesso!
-Example app listening on port 3000
+# Credenciais para o container do MongoDB (Docker)
+MONGO_ROOT_USERNAME=admin
+MONGO_ROOT_PASSWORD=minha_senha_segura
 ```
 
-## Documentação (Swagger UI)
-Acesse a documentação interativa em:
-```
-http://Endereço:<PROXY_PORT>/docs
-```
-O arquivo OpenAPI está em `./swagger.yaml`. Você também pode abrir no editor online: https://editor.swagger.io (File > Import File) se preferir.
+> **Nota:** Certifique-se de que a senha definida em `MONGO_ROOT_PASSWORD` seja a mesma usada na `MONGO_URI`.
 
-## Endpoints principais (com exemplos)
-Base URL: `http://localhost:<PROXY_PORT>`
+### 3. Subir o Banco de Dados (MongoDB)
 
-- GET `/api/hello-world`
-  - Retorna uma saudação simples.
-  - Exemplo:
-    ```bash
-    curl http://Endereço:<PORT>/api/hello-world
-    ```
-  - 200 OK: `Hello World!`
+Utilize o Docker Compose para iniciar o banco de dados com as credenciais que você definiu no `.env`. O arquivo `docker-compose.yml` já está configurado para ler essas variáveis.
 
-- POST `/api/api-busca?symbol=<TICKER>`
-  - Consulta fundamentos no Yahoo Finance.
-  - Parâmetros:
-    - `symbol` (query) — ex.: `PETR4.SA`, `AAPL`.
-  - Exemplo:
-    ```bash
-    curl -X POST "http://endreço:<port>/api/api-busca?symbol=PETR4.SA"
-    ```
-  - 200 OK (exemplo de resposta):
-    ```json
-    {
-      "symbol": "PETR4.SA",
-      "pl": 12.34,
-      "lpa": 1.56,
-      "pvp": 1.8,
-      "vpa": 10.2,
-      "dividendYield": 0.03,
-      "price": 19.2
-    }
-    ```
-
-- POST `/api/preco-justo?symbol=<TICKER>`
-  - Calcula o Preço Justo e salva/atualiza no MongoDB.
-  - Parâmetros: `symbol` (query).
-  - Exemplo:
-    ```bash
-    curl -X POST "http://endreço:<port>/api/preco-justo?symbol=PETR4.SA"
-    ```
-  - 200 OK (exemplo de resposta):
-    ```json
-    {
-      "symbol": "PETR4.SA",
-      "precoJusto": 14.8,
-      "fundamentos": {
-        "pl": 12.34,
-        "lpa": 1.56,
-        "pvp": 1.8,
-        "vpa": 10.2,
-        "dividendYield": 0.03,
-        "price": 19.2
-      }
-    }
-    ```
-
-- DELETE `/api/delete?symbol=<TICKER>`
-  - Exclui o registro de Preço Justo para o símbolo informado.
-  - Parâmetros: `symbol` (query).
-  - Exemplo:
-    ```bash
-    curl -X DELETE "http://endreço:<port>/api/delete?symbol=PETR4.SA"
-    ```
-  - 200 OK (exemplo):
-    ```json
-    { "message": "Registro com symbol PETR4.SA deletado com sucesso." }
-    ```
-
-Para detalhes completos de schemas e exemplos, consulte o Swagger em `/docs` ou o `swagger.yaml`.
-
-## Banco de dados e persistência
-- Conexão: `src/models/connect.js` lê `MONGO_URI`/`MONGO_DB` do `.env` e mantém um cliente compartilhado (`getDatabase()`).
-- Coleção: `precos`.
-- Persistência do cálculo: `updateOne({ symbol }, { $set: { ... } }, { upsert: true })` — atualiza ou cria o documento por `symbol`.
-- Limite de registros: até 5 documentos.
-
-## Cálculo do Preço Justo
-Implementação em `src/services/precoJusto.js`:
-- Busca fundamentos via `src/services/yahoo.js` (Yahoo Finance v3);
-- LPA estimado: `lpa = price / pl` quando ambos existem, senão `null`;
-- Fórmula: `Preço Justo = sqrt(vpa * lpa * 22.05)`;
-- Caso `vpa` ou `lpa` sejam `null`, a API retorna erro 400 com mensagem adequada.
-
-## Tratamento de erros
-- Respostas de erro seguem o formato:
-  ```json
-  { "error": "Mensagem descritiva" }
-  ```
-- Principais situações:
-  - Dados insuficientes para cálculo do Preço Justo;
-  - Conexão com MongoDB indisponível;
-  - Registro inexistente ao tentar deletar por `symbol`;
-  - Parâmetro `symbol` ausente.
-
-## Dicas e solução de problemas
-- Swagger não abre/atualiza:
-  - Acesse `http://endereço:<PROXY_PORT>/docs`;
-  - Force refresh (Ctrl+F5 / Cmd+Shift+R);
-  - Garanta que o servidor foi reiniciado após editar `swagger.yaml` (em dev com nodemon recarrega).
-- Conexão MongoDB falhando:
-  - Verifique `MONGO_URI`/`MONGO_DB` no `.env`;
-  - Confirme que o serviço MongoDB está em execução;
-  - Teste a conexão com uma ferramenta cliente.
-- Yahoo Finance retornando valores `null`:
-  - Nem todos os símbolos possuem todos os indicadores; tente outro ticker ou mercado.
-- Porta ocupada:
-  - Ajuste `PROXY_PORT` no `.env` e reinicie.
-
-## Scripts npm
-- `npm start` — inicia o servidor (`server.js`).
-- `npm run dev` — inicia com `nodemon` para recarregar em mudanças.
-
-## Estrutura do projeto (resumo)
-```
-.
-├── server.js
-├── swagger.yaml
-├── src
-│   ├── controllers
-│   │   └── controller.js
-│   ├── models
-│   │   └── connect.js
-│   ├── routes
-│   │   └── routes.js
-│   └── services
-│       ├── precoJusto.js
-│       └── yahoo.js
-├── package.json
-└── README.md
+```bash
+docker-compose up -d
 ```
 
-## Licença
-Nenhuma licença explícita definida neste repositório. Considere adicionar uma (por exemplo, MIT) conforme sua necessidade.
+Isso iniciará um container MongoDB na porta `27017`.
+
+### 4. Instalar Dependências e Rodar a Aplicação
+
+Instale os pacotes do Node.js e inicie o servidor:
+
+```bash
+npm install
+npm run dev
+```
+
+O servidor iniciará em `http://localhost:3000`.
+
+## 📖 Documentação da API
+
+O projeto possui documentação interativa via Swagger.
+Após iniciar a aplicação, acesse:
+
+👉 **http://localhost:3000/docs**
+
+## 🔄 Cron Jobs
+
+O sistema possui um agendamento automático (Cron Job) que roda diariamente às 11:00 AM para atualizar os preços e indicadores de todos os ativos cadastrados na base.
+
+## 🛡️ Segurança e Boas Práticas
+
+- O arquivo `.env` é listado no `.gitignore` para evitar vazamento de credenciais.
+- As senhas do banco de dados são injetadas via variáveis de ambiente no container Docker.
+- O acesso ao banco é protegido por autenticação.
+
+## 📂 Estrutura do Projeto
+
+```
+StockWallet/
+├── docker-compose.yml   # Configuração dos serviços Docker
+├── Dockerfile           # (Opcional) Para containerizar a app
+├── server.js            # Ponto de entrada da aplicação
+├── src/
+│   ├── controllers/     # Lógica de controle das rotas
+│   ├── models/          # Conexão e Schemas do Banco
+│   ├── routes/          # Definição das rotas da API
+│   ├── services/        # Regras de negócio (Cálculos, Yahoo Finance)
+│   └── views/           # Templates EJS (Frontend)
+└── swagger.yaml         # Especificação da API
+```
